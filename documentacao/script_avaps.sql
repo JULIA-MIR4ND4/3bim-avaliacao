@@ -2,125 +2,125 @@
 -- TABELA INDEPENDENTE: Produto (TênisDeVolei)
 -- ===========================
 CREATE TABLE Produto (
-    idTenis SERIAL PRIMARY KEY,
-    nomeTenis VARCHAR(45) NOT NULL,
-    tamanhoDisponivel VARCHAR(10),
-    quantidadeEmEstoque INT NOT NULL,
-    precoUnitario DOUBLE PRECISION NOT NULL
+    id_tenis SERIAL PRIMARY KEY,
+    nome_tenis VARCHAR(45) NOT NULL,
+    tamanho_disponivel VARCHAR(10),
+    quantidade_em_estoque INT NOT NULL,
+    preco_unitario DOUBLE PRECISION NOT NULL
 );
 
 -- ===========================
 -- TABELA INDEPENDENTE: FormaDePagamento
 -- ===========================
 CREATE TABLE FormaDePagamento (
-    idFormaPagamento SERIAL PRIMARY KEY,
-    nomeFormaPagamento VARCHAR(100) NOT NULL
+    id_forma_pagamento SERIAL PRIMARY KEY,
+    nome_forma_pagamento VARCHAR(100) NOT NULL
 );
 
 -- ===========================
 -- TABELA INDEPENDENTE: Cargo
 -- ===========================
 CREATE TABLE Cargo (
-    idCargo SERIAL PRIMARY KEY,
-    nomeCargo VARCHAR(45) NOT NULL
+    id_cargo SERIAL PRIMARY KEY,
+    nome_cargo VARCHAR(45) NOT NULL
 );
 
 -- ===========================
--- TABELA Endereco (sem FK para Cidade)
+-- TABELA Endereco
 -- ===========================
 CREATE TABLE Endereco (
-    idEndereco SERIAL PRIMARY KEY,
+    id_endereco SERIAL PRIMARY KEY,
     logradouro VARCHAR(100) NOT NULL,
     numero VARCHAR(10),
     referencia VARCHAR(45),
     cep VARCHAR(9),
-    cidade VARCHAR(100) -- agora apenas texto
+    cidade VARCHAR(100)
 );
 
 -- ===========================
 -- TABELA Pessoa
 -- ===========================
 CREATE TABLE Pessoa (
-    cpfPessoa VARCHAR(20) PRIMARY KEY,
-    nomePessoa VARCHAR(60) NOT NULL,
-    dataNascimentoPessoa DATE NOT NULL,
-    EnderecoIdEndereco INT,
-    FOREIGN KEY (EnderecoIdEndereco) REFERENCES Endereco(idEndereco)
+    cpf_pessoa VARCHAR(20) PRIMARY KEY,
+    nome_pessoa VARCHAR(60) NOT NULL,
+    data_nascimento_pessoa DATE NOT NULL,
+    endereco_id_endereco INT,
+    FOREIGN KEY (endereco_id_endereco) REFERENCES Endereco(id_endereco)
 );
 
 -- ===========================
 -- TABELA Cliente (1:1 com Pessoa)
 -- ===========================
 CREATE TABLE Cliente (
-    PessoaCpfPessoa VARCHAR(20) PRIMARY KEY,
-    rendaCliente DOUBLE PRECISION,
-    dataDeCadastroCliente DATE,
-    FOREIGN KEY (PessoaCpfPessoa) REFERENCES Pessoa(cpfPessoa)
+    pessoa_cpf_pessoa VARCHAR(20) PRIMARY KEY,
+    renda_cliente DOUBLE PRECISION,
+    data_de_cadastro_cliente DATE,
+    FOREIGN KEY (pessoa_cpf_pessoa) REFERENCES Pessoa(cpf_pessoa)
 );
 
 -- ===========================
 -- TABELA Funcionario (1:1 com Pessoa)
 -- ===========================
 CREATE TABLE Funcionario (
-    PessoaCpfPessoa VARCHAR(20) PRIMARY KEY,
+    pessoa_cpf_pessoa VARCHAR(20) PRIMARY KEY,
     salario DOUBLE PRECISION,
-    CargoIdCargo INT,
-    porcentagemComissao DOUBLE PRECISION,
-    FOREIGN KEY (PessoaCpfPessoa) REFERENCES Pessoa(cpfPessoa),
-    FOREIGN KEY (CargoIdCargo) REFERENCES Cargo(idCargo)
+    cargo_id_cargo INT,
+    porcentagem_comissao DOUBLE PRECISION,
+    FOREIGN KEY (pessoa_cpf_pessoa) REFERENCES Pessoa(cpf_pessoa),
+    FOREIGN KEY (cargo_id_cargo) REFERENCES Cargo(id_cargo)
 );
 
 -- ===========================
 -- TABELA Pedido
 -- ===========================
 CREATE TABLE Pedido (
-    idPedido SERIAL PRIMARY KEY,
-    dataDoPedido DATE NOT NULL,
-    ClientePessoaCpfPessoa VARCHAR(20),
-    FuncionarioPessoaCpfPessoa VARCHAR(20),
-    FOREIGN KEY (ClientePessoaCpfPessoa) REFERENCES Cliente(PessoaCpfPessoa),
-    FOREIGN KEY (FuncionarioPessoaCpfPessoa) REFERENCES Funcionario(PessoaCpfPessoa)
+    id_pedido SERIAL PRIMARY KEY,
+    data_do_pedido DATE NOT NULL,
+    cliente_pessoa_cpf_pessoa VARCHAR(20),
+    funcionario_pessoa_cpf_pessoa VARCHAR(20),
+    FOREIGN KEY (cliente_pessoa_cpf_pessoa) REFERENCES Cliente(pessoa_cpf_pessoa),
+    FOREIGN KEY (funcionario_pessoa_cpf_pessoa) REFERENCES Funcionario(pessoa_cpf_pessoa)
 );
 
 -- ===========================
 -- TABELA Pagamento (1:1 com Pedido)
 -- ===========================
 CREATE TABLE Pagamento (
-    PedidoIdPedido INT PRIMARY KEY,
-    dataPagamento TIMESTAMP,
-    valorTotalPagamento DOUBLE PRECISION,
-    FOREIGN KEY (PedidoIdPedido) REFERENCES Pedido(idPedido)
+    pedido_id_pedido INT PRIMARY KEY,
+    data_pagamento TIMESTAMP,
+    valor_total_pagamento DOUBLE PRECISION,
+    FOREIGN KEY (pedido_id_pedido) REFERENCES Pedido(id_pedido)
 );
 
 -- ===========================
 -- TABELA PedidoHasTenis (N:N entre Pedido e Produto)
 -- ===========================
 CREATE TABLE PedidoHasTenis (
-    TenisIdTenis INT,
-    PedidoIdPedido INT,
+    tenis_id_tenis INT,
+    pedido_id_pedido INT,
     quantidade INT,
-    precoUnitario DOUBLE PRECISION,
-    PRIMARY KEY (TenisIdTenis, PedidoIdPedido),
-    FOREIGN KEY (TenisIdTenis) REFERENCES Produto(idTenis),
-    FOREIGN KEY (PedidoIdPedido) REFERENCES Pedido(idPedido)
+    preco_unitario DOUBLE PRECISION,
+    PRIMARY KEY (tenis_id_tenis, pedido_id_pedido),
+    FOREIGN KEY (tenis_id_tenis) REFERENCES Produto(id_tenis),
+    FOREIGN KEY (pedido_id_pedido) REFERENCES Pedido(id_pedido)
 );
 
 -- ===========================
 -- TABELA PagamentoHasFormaPagamento (N:N entre Pagamento e FormaDePagamento)
 -- ===========================
 CREATE TABLE PagamentoHasFormaPagamento (
-    PagamentoIdPedido INT,
-    FormaPagamentoIdFormaPagamento INT,
-    valorPago DOUBLE PRECISION,
-    PRIMARY KEY (PagamentoIdPedido, FormaPagamentoIdFormaPagamento),
-    FOREIGN KEY (PagamentoIdPedido) REFERENCES Pagamento(PedidoIdPedido),
-    FOREIGN KEY (FormaPagamentoIdFormaPagamento) REFERENCES FormaDePagamento(idFormaPagamento)
+    pagamento_id_pedido INT,
+    forma_pagamento_id_forma_pagamento INT,
+    valor_pago DOUBLE PRECISION,
+    PRIMARY KEY (pagamento_id_pedido, forma_pagamento_id_forma_pagamento),
+    FOREIGN KEY (pagamento_id_pedido) REFERENCES Pagamento(pedido_id_pedido),
+    FOREIGN KEY (forma_pagamento_id_forma_pagamento) REFERENCES FormaDePagamento(id_forma_pagamento)
 );
 
 -- ===========================
 -- PRODUTO (10 registros)
 -- ===========================
-INSERT INTO Produto (nomeTenis, tamanhoDisponivel, quantidadeEmEstoque, precoUnitario) VALUES
+INSERT INTO Produto (nome_tenis, tamanho_disponivel, quantidade_em_estoque, preco_unitario) VALUES
 ('Tênis Pro Attack', '38-44', 50, 299.90),
 ('Tênis Smash Pro', '36-42', 40, 259.50),
 ('Tênis Volley Master', '37-44', 30, 349.99),
@@ -135,7 +135,7 @@ INSERT INTO Produto (nomeTenis, tamanhoDisponivel, quantidadeEmEstoque, precoUni
 -- ===========================
 -- FORMA DE PAGAMENTO (10 registros)
 -- ===========================
-INSERT INTO FormaDePagamento (nomeFormaPagamento) VALUES
+INSERT INTO FormaDePagamento (nome_forma_pagamento) VALUES
 ('Cartão de Crédito'),
 ('Cartão de Débito'),
 ('Pix'),
@@ -150,7 +150,7 @@ INSERT INTO FormaDePagamento (nomeFormaPagamento) VALUES
 -- ===========================
 -- CARGO (10 registros)
 -- ===========================
-INSERT INTO Cargo (nomeCargo) VALUES
+INSERT INTO Cargo (nome_cargo) VALUES
 ('Vendedor'),
 ('Gerente'),
 ('Caixa'),
@@ -180,7 +180,7 @@ INSERT INTO Endereco (logradouro, numero, referencia, cep, cidade) VALUES
 -- ===========================
 -- PESSOA (10 registros)
 -- ===========================
-INSERT INTO Pessoa (cpfPessoa, nomePessoa, dataNascimentoPessoa, EnderecoIdEndereco) VALUES
+INSERT INTO Pessoa (cpf_pessoa, nome_pessoa, data_nascimento_pessoa, endereco_id_endereco) VALUES
 ('11111111111', 'João Silva', '1990-05-12', 1),
 ('22222222222', 'Maria Oliveira', '1985-03-20', 2),
 ('33333333333', 'Carlos Souza', '1992-07-08', 3),
@@ -195,7 +195,7 @@ INSERT INTO Pessoa (cpfPessoa, nomePessoa, dataNascimentoPessoa, EnderecoIdEnder
 -- ===========================
 -- CLIENTE (10 registros)
 -- ===========================
-INSERT INTO Cliente (PessoaCpfPessoa, rendaCliente, dataDeCadastroCliente) VALUES
+INSERT INTO Cliente (pessoa_cpf_pessoa, renda_cliente, data_de_cadastro_cliente) VALUES
 ('11111111111', 3500.00, '2023-01-15'),
 ('22222222222', 4200.00, '2022-05-20'),
 ('33333333333', 2800.00, '2023-07-11'),
@@ -210,7 +210,7 @@ INSERT INTO Cliente (PessoaCpfPessoa, rendaCliente, dataDeCadastroCliente) VALUE
 -- ===========================
 -- FUNCIONARIO (10 registros)
 -- ===========================
-INSERT INTO Funcionario (PessoaCpfPessoa, salario, CargoIdCargo, porcentagemComissao) VALUES
+INSERT INTO Funcionario (pessoa_cpf_pessoa, salario, cargo_id_cargo, porcentagem_comissao) VALUES
 ('11111111111', 2000.00, 1, 5.0),
 ('22222222222', 3500.00, 2, 10.0),
 ('33333333333', 1800.00, 3, 2.0),
@@ -225,7 +225,7 @@ INSERT INTO Funcionario (PessoaCpfPessoa, salario, CargoIdCargo, porcentagemComi
 -- ===========================
 -- PEDIDO (10 registros)
 -- ===========================
-INSERT INTO Pedido (dataDoPedido, ClientePessoaCpfPessoa, FuncionarioPessoaCpfPessoa) VALUES
+INSERT INTO Pedido (data_do_pedido, cliente_pessoa_cpf_pessoa, funcionario_pessoa_cpf_pessoa) VALUES
 ('2023-01-10', '11111111111', '22222222222'),
 ('2023-02-15', '33333333333', '44444444444'),
 ('2023-03-20', '55555555555', '66666666666'),
@@ -240,7 +240,7 @@ INSERT INTO Pedido (dataDoPedido, ClientePessoaCpfPessoa, FuncionarioPessoaCpfPe
 -- ===========================
 -- PAGAMENTO (10 registros)
 -- ===========================
-INSERT INTO Pagamento (PedidoIdPedido, dataPagamento, valorTotalPagamento) VALUES
+INSERT INTO Pagamento (pedido_id_pedido, data_pagamento, valor_total_pagamento) VALUES
 (1, '2023-01-10 15:30:00', 599.80),
 (2, '2023-02-15 16:00:00', 259.50),
 (3, '2023-03-20 17:10:00', 349.99),
@@ -255,7 +255,7 @@ INSERT INTO Pagamento (PedidoIdPedido, dataPagamento, valorTotalPagamento) VALUE
 -- ===========================
 -- PEDIDOHASTENIS (5 registros - relação N:N)
 -- ===========================
-INSERT INTO PedidoHasTenis (TenisIdTenis, PedidoIdPedido, quantidade, precoUnitario) VALUES
+INSERT INTO PedidoHasTenis (tenis_id_tenis, pedido_id_pedido, quantidade, preco_unitario) VALUES
 (1, 1, 2, 299.90),
 (2, 2, 1, 259.50),
 (3, 3, 1, 349.99),
@@ -264,9 +264,8 @@ INSERT INTO PedidoHasTenis (TenisIdTenis, PedidoIdPedido, quantidade, precoUnita
 
 -- ===========================
 -- PAGAMENTOHASFORMAPAGAMENTO (5 registros - relação N:N)
--- Somente Cartão de Crédito, Cartão de Débito ou Pix
 -- ===========================
-INSERT INTO PagamentoHasFormaPagamento (PagamentoIdPedido, FormaPagamentoIdFormaPagamento, valorPago) VALUES
+INSERT INTO PagamentoHasFormaPagamento (pagamento_id_pedido, forma_pagamento_id_forma_pagamento, valor_pago) VALUES
 (1, 1, 599.80),  -- Cartão de Crédito
 (2, 3, 259.50),  -- Pix
 (3, 1, 349.99),  -- Cartão de Crédito
