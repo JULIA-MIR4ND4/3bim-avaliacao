@@ -8,9 +8,9 @@ CREATE TABLE Produto (
     nome_tenis VARCHAR(45) NOT NULL,
     tamanho_disponivel VARCHAR(10),
     quantidade_em_estoque INT NOT NULL,
-    preco_unitario DOUBLE PRECISION NOT NULL
+    preco_unitario DOUBLE PRECISION NOT NULL,
+    imagem_url VARCHAR(255) -- coluna para armazenar o endereço da imagem
 );
-
 -- Forma de Pagamento
 CREATE TABLE FormaDePagamento (
     id_forma_pagamento SERIAL PRIMARY KEY,
@@ -28,6 +28,7 @@ CREATE TABLE Pessoa (
     id_pessoa SERIAL PRIMARY KEY,
     nome_pessoa VARCHAR(60) NOT NULL,
     email_pessoa VARCHAR(70) NOT NULL UNIQUE,
+    id_pedido_atual INT,
     senha_pessoa VARCHAR(32) NOT NULL,
     data_nascimento_pessoa DATE NOT NULL,
     endereco VARCHAR(200) NOT NULL
@@ -38,7 +39,7 @@ CREATE TABLE Cliente (
     id_pessoa INT PRIMARY KEY,
     renda_cliente DOUBLE PRECISION,
     data_de_cadastro_cliente DATE,
-    FOREIGN KEY (id_pessoa) REFERENCES Pessoa(id_pessoa)
+    FOREIGN KEY (id_pessoa) REFERENCES Pessoa(id_pessoa) ON DELETE CASCADE
 );
 
 -- Funcionário
@@ -47,7 +48,7 @@ CREATE TABLE Funcionario (
     salario DOUBLE PRECISION,
     cargo_id_cargo INT,
     porcentagem_comissao DOUBLE PRECISION,
-    FOREIGN KEY (id_pessoa) REFERENCES Pessoa(id_pessoa),
+    FOREIGN KEY (id_pessoa) REFERENCES Pessoa(id_pessoa) ON DELETE CASCADE,
     FOREIGN KEY (cargo_id_cargo) REFERENCES Cargo(id_cargo)
 );
 
@@ -57,8 +58,8 @@ CREATE TABLE Pedido (
     data_do_pedido DATE NOT NULL,
     id_cliente INT,
     id_funcionario INT,
-    FOREIGN KEY (id_cliente) REFERENCES Cliente(id_pessoa),
-    FOREIGN KEY (id_funcionario) REFERENCES Funcionario(id_pessoa)
+    FOREIGN KEY (id_cliente) REFERENCES Cliente(id_pessoa) ON DELETE CASCADE,
+    FOREIGN KEY (id_funcionario) REFERENCES Funcionario(id_pessoa) ON DELETE CASCADE
 );
 
 -- Pagamento
@@ -66,7 +67,8 @@ CREATE TABLE Pagamento (
     id_pedido INT PRIMARY KEY,
     data_pagamento TIMESTAMP,
     valor_total_pagamento DOUBLE PRECISION,
-    FOREIGN KEY (id_pedido) REFERENCES Pedido(id_pedido)
+    status_pagamento VARCHAR(32) NOT NULL,
+    FOREIGN KEY (id_pedido) REFERENCES Pedido(id_pedido) ON DELETE CASCADE
 );
 
 -- PedidoHasTenis (N:N Pedido x Produto)
@@ -76,8 +78,8 @@ CREATE TABLE PedidoHasTenis (
     quantidade INT,
     preco_unitario DOUBLE PRECISION,
     PRIMARY KEY (id_tenis, id_pedido),
-    FOREIGN KEY (id_tenis) REFERENCES Produto(id_tenis),
-    FOREIGN KEY (id_pedido) REFERENCES Pedido(id_pedido)
+    FOREIGN KEY (id_tenis) REFERENCES Produto(id_tenis)  ON DELETE CASCADE,
+    FOREIGN KEY (id_pedido) REFERENCES Pedido(id_pedido) ON DELETE CASCADE
 );
 
 -- PagamentoHasFormaPagamento (N:N Pagamento x FormaPagamento)
@@ -86,7 +88,7 @@ CREATE TABLE PagamentoHasFormaPagamento (
     id_forma_pagamento INT,
     valor_pago DOUBLE PRECISION,
     PRIMARY KEY (id_pedido, id_forma_pagamento),
-    FOREIGN KEY (id_pedido) REFERENCES Pagamento(id_pedido),
+    FOREIGN KEY (id_pedido) REFERENCES Pagamento(id_pedido) ON DELETE CASCADE,
     FOREIGN KEY (id_forma_pagamento) REFERENCES FormaDePagamento(id_forma_pagamento)
 );
 
@@ -186,17 +188,17 @@ INSERT INTO Pedido (data_do_pedido, id_cliente, id_funcionario) VALUES
 ('2023-10-28', 10, 9);
 
 -- Pagamentos (10 registros)
-INSERT INTO Pagamento (id_pedido, data_pagamento, valor_total_pagamento) VALUES
-(1, '2023-01-10 15:30:00', 599.80),
-(2, '2023-02-15 16:00:00', 259.50),
-(3, '2023-03-20 17:10:00', 349.99),
-(4, '2023-04-25 12:45:00', 279.00),
-(5, '2023-05-30 14:20:00', 319.75),
-(6, '2023-06-05 13:40:00', 239.90),
-(7, '2023-07-12 15:55:00', 359.99),
-(8, '2023-08-18 11:10:00', 269.90),
-(9, '2023-09-22 18:25:00', 389.00),
-(10, '2023-10-28 19:30:00', 299.00);
+INSERT INTO Pagamento (id_pedido, data_pagamento, status_pagamento, valor_total_pagamento) VALUES
+(1, '2023-01-10 15:30:00', 'concluido', 599.80),
+(2, '2023-02-15 16:00:00', 'concluido', 259.50),
+(3, '2023-03-20 17:10:00', 'concluido', 349.99),
+(4, '2023-04-25 12:45:00', 'concluido', 279.00),
+(5, '2023-05-30 14:20:00', 'concluido', 319.75),
+(6, '2023-06-05 13:40:00', 'concluido', 239.90),
+(7, '2023-07-12 15:55:00', 'concluido', 359.99),
+(8, '2023-08-18 11:10:00', 'concluido', 269.90),
+(9, '2023-09-22 18:25:00', 'concluido', 389.00),
+(10, '2023-10-28 19:30:00', 'concluido', 299.00);
 
 -- PedidoHasTenis (10 registros)
 INSERT INTO PedidoHasTenis (id_tenis, id_pedido, quantidade, preco_unitario) VALUES

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const cargoController = require('./../controllers/cargoController');
 
+
 // CRUD de Cargos
 
 router.get('/abrirCrudCargo', cargoController.abrirCrudCargo);

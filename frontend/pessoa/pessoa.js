@@ -39,12 +39,12 @@ function mostrarMensagem(texto, tipo = 'info') {
     }, 3000);
 }
 
-// Bloquear ou liberar campos do formulário
+// Ajustar a função bloquearCampos para manter o campo de busca por ID habilitado
 function bloquearCampos(bloquearPrimeiro) {
     const inputs = document.querySelectorAll('input, select');
     inputs.forEach((input, index) => {
-        if (index === 0) {
-            input.disabled = bloquearPrimeiro;
+        if (input.id === 'searchId') {
+            input.disabled = false; // Sempre habilitar o campo de busca por ID
         } else {
             input.disabled = !bloquearPrimeiro;
         }
@@ -349,7 +349,10 @@ async function carregarPessoas() {
 // Renderizar tabela de pessoas
 function renderizarTabelaPessoas(pessoas) {
     pessoasTableBody.innerHTML = '';
-    pessoas.forEach(pessoa => {
+    pessoas.forEach(async (pessoa) => {
+        const f = await verificarFuncionario(pessoa.id_pessoa);
+        const c = await verificarCliente(pessoa.id_pessoa);
+
         const row = document.createElement('tr');
         row.innerHTML = `
             <td><button class="btn-id" onclick="selecionarPessoa(${pessoa.id_pessoa})">${pessoa.id_pessoa}</button></td>
@@ -357,13 +360,65 @@ function renderizarTabelaPessoas(pessoas) {
             <td>${pessoa.email_pessoa}</td>
             <td>${formatarData(pessoa.data_nascimento_pessoa)}</td>
             <td>${pessoa.endereco}</td>
+            <td>${f.ehFuncionario ? 'Sim' : 'Não'}</td>
+            <td>${c.ehCliente ? 'Sim' : 'Não'}</td>
         `;
         pessoasTableBody.appendChild(row);
     });
 }
+
 
 // Selecionar pessoa da tabela
 async function selecionarPessoa(id) {
     searchId.value = id;
     await buscarPessoa();
 }
+async function nomeUsuario() {
+    const combobox = document.getElementById("oUsuario");
+    const primeiraOpcao = combobox.options[0];
+    
+    try {
+        const res = await fetch('http://localhost:3001/login/verificaSeUsuarioEstaLogado', {
+        method: 'POST',
+        credentials: 'include' // MUITO IMPORTANTE: envia cookies
+        });
+    
+        const data = await res.json();
+    
+        if (data.status === 'ok') {
+        primeiraOpcao.text = data.nome; // usuário logado
+        } else {
+        primeiraOpcao.text = "Fazer Login"; // fallback
+        }
+    
+    } catch (err) {
+        console.error(err);
+        primeiraOpcao.text = "Fazer Login";
+    }
+    }
+    
+    
+    // Chame a função quando a página carregar
+    window.onload = nomeUsuario;
+    
+    async function usuarioAutorizado() {
+    
+    const rota = API_BASE_URL + '/login/verificaSeUsuarioEstaLogado';
+    alert('Rota: ' + rota);
+    
+    const res = await fetch(rota, { credentials: 'include' });
+    alert(JSON.stringify(data));
+    
+    
+    
+    
+    const data = await res.json();
+    if (data.status === 'ok') {
+        document.getElementById('boasVindas').innerText =
+        `${data.nome} - ${data.mnemonicoProfessor ? `Professor: ${data.mnemonicoProfessor}` : ''}`;
+        if (data.mnemonicoProfessor) ehProfessor = true;
+    } else {
+        alert("Você precisa fazer login.");
+        window.location.href = "./login/login";
+    }
+    }

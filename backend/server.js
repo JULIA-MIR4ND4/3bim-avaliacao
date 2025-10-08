@@ -79,6 +79,32 @@ app.use('/menu', menuRoutes);
 const pessoaRoutes = require('./routes/pessoaRoutes');
 app.use('/pessoa', pessoaRoutes);
 
+const loginRoutes = require('./routes/loginRoutes');
+app.use('/login', loginRoutes);
+const funcionarioRoutes = require('./routes/funcionarioRoutes');
+app.use('/funcionario', funcionarioRoutes);
+const clienteRoutes = require('./routes/clienteRoutes');
+app.use('/cliente', clienteRoutes);
+const produtoRoutes = require('./routes/produtoRoute');
+app.use('/produto', produtoRoutes);
+const uploadRoutes = require('./routes/uploadRoutes');
+app.use('/upload', uploadRoutes);
+const pedidoRoutes = require('./routes/pedidoRoutes');
+app.use('/pedido', pedidoRoutes);
+const carrinhoRoutes = require('./routes/carrinhoRoutes');
+app.use('/carrinho', carrinhoRoutes);
+const pagamentoRoutes = require('./routes/pagamentoRoutes');
+app.use('/pagamento', pagamentoRoutes);
+//const itemPedidoRoutes = require('./routes/itemPedidoRoutes');
+//app.use('/itemPedido', itemPedidoRoutes);
+
+// rotas relacionadas à loja de tênis
+
+
+
+
+
+
 //const questaoRoutes = require('./routes/questaoRoutes');
 //app.use('/questao', questaoRoutes);
 
