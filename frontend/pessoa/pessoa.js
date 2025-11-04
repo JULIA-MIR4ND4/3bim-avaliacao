@@ -18,6 +18,7 @@ const messageContainer = document.getElementById('messageContainer');
 // Carregar lista de pessoas ao inicializar
 document.addEventListener('DOMContentLoaded', () => {
     carregarPessoas();
+    carregarCargos(); // ✅ chamada adicionada para preencher o select de cargos
 });
 
 // Event Listeners
@@ -79,6 +80,30 @@ function formatarData(dataString) {
 function converterDataParaISO(dataString) {
     if (!dataString) return null;
     return new Date(dataString).toISOString().split('T')[0];
+}
+
+// ✅ NOVA FUNÇÃO — Carregar cargos no select
+async function carregarCargos() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/cargo`);
+        if (response.ok) {
+            const cargos = await response.json();
+            const selectCargo = document.getElementById('cargo_id_cargo');
+            if (selectCargo) {
+                selectCargo.innerHTML = '<option value="">Selecione um cargo</option>';
+                cargos.forEach(cargo => {
+                    const option = document.createElement('option');
+                    option.value = cargo.id_cargo;
+                    option.textContent = cargo.nome_cargo;
+                    selectCargo.appendChild(option);
+                });
+            }
+        } else {
+            console.error('Erro ao carregar cargos');
+        }
+    } catch (error) {
+        console.error('Erro ao buscar cargos:', error);
+    }
 }
 
 // Verifica se a pessoa é funcionário
@@ -367,12 +392,12 @@ function renderizarTabelaPessoas(pessoas) {
     });
 }
 
-
 // Selecionar pessoa da tabela
 async function selecionarPessoa(id) {
     searchId.value = id;
     await buscarPessoa();
 }
+
 async function nomeUsuario() {
     const combobox = document.getElementById("oUsuario");
     const primeiraOpcao = combobox.options[0];
@@ -395,22 +420,17 @@ async function nomeUsuario() {
         console.error(err);
         primeiraOpcao.text = "Fazer Login";
     }
-    }
+}
     
+// Chame a função quando a página carregar
+window.onload = nomeUsuario;
     
-    // Chame a função quando a página carregar
-    window.onload = nomeUsuario;
-    
-    async function usuarioAutorizado() {
-    
+async function usuarioAutorizado() {
     const rota = API_BASE_URL + '/login/verificaSeUsuarioEstaLogado';
     alert('Rota: ' + rota);
     
     const res = await fetch(rota, { credentials: 'include' });
     alert(JSON.stringify(data));
-    
-    
-    
     
     const data = await res.json();
     if (data.status === 'ok') {
@@ -421,4 +441,4 @@ async function nomeUsuario() {
         alert("Você precisa fazer login.");
         window.location.href = "./login/login";
     }
-    }
+}
